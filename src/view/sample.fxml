@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="475.0" prefWidth="410.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="controller.Controller">
+  <children>
+    <Text layoutX="14.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Computer list">
+      <font>
+        <Font size="15.0" fx:id="x1" />
+      </font>
+    </Text>
+    <Text font="$x1" layoutX="13.0" layoutY="225.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Set order of repair process" />
+    <VBox id="VBox" alignment="CENTER_LEFT" layoutX="211.0" layoutY="64.0" prefWidth="98.0" spacing="5.0">
+      <children>
+        <Text fx:id="txtProcessor" font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="Processor:" />
+        <Text font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="Memory:" />
+        <Text font="$x1" scaleX="1.0880217308060502" scaleY="1.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Graphic card:" />
+        <Text font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="Main board:" />
+        <Text font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="Hard disk:" />
+      </children>
+    </VBox>
+    <VBox id="VBox" alignment="CENTER_LEFT" layoutX="319.0" layoutY="64.0" spacing="5.0">
+      <children>
+        <Text id="txtProcessor" fx:id="txt_Processor" font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="ok" />
+        <Text id="txt" fx:id="txt_Memory" font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="ok" />
+        <Text id="txt" fx:id="txt_Graphic_Card" font="$x1" scaleX="1.0880217308060502" scaleY="1.0" strokeType="OUTSIDE" strokeWidth="0.0" text="ok" />
+        <Text id="txt" fx:id="txt_Main_Board" font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="ok" />
+        <Text id="txt" fx:id="txt_Hard_Disk" font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="ok" />
+      </children>
+    </VBox>
+    <Button layoutX="211.0" layoutY="239.0" mnemonicParsing="false" onMouseClicked="#btnRepairClick" prefHeight="66.0" prefWidth="168.0" text="Repair" />
+    <Button layoutX="303.0" layoutY="357.0" mnemonicParsing="false" onMouseClicked="#btnOkClick" prefHeight="96.0" prefWidth="89.0" text="OK" />
+    <HBox id="HBox" alignment="CENTER" layoutX="226.0" layoutY="323.0" spacing="5.0">
+      <children>
+        <Text font="$x1" strokeType="OUTSIDE" strokeWidth="0.0" text="Name:" />
+        <TextField id="ed_name" fx:id="ed_Name" prefWidth="89.267578125" />
+      </children>
+    </HBox>
+    <VBox id="VBox" alignment="CENTER_LEFT" layoutX="193.0" layoutY="357.0" spacing="5.0">
+      <children>
+        <CheckBox fx:id="CB_Processor" mnemonicParsing="false" text="Processor:" />
+        <CheckBox fx:id="CB_Memory" mnemonicParsing="false" text="Memory:" />
+        <CheckBox fx:id="CB_Graphic_Card" mnemonicParsing="false" text="Graphic card:" />
+        <CheckBox fx:id="CB_Main_Board" mnemonicParsing="false" text="Main board:" />
+        <CheckBox fx:id="CB_Hard_Disk" mnemonicParsing="false" text="Hard disk:" />
+      </children>
+    </VBox>
+    <ListView fx:id="lv_Order" layoutX="13.0" layoutY="238.0" prefHeight="219.5" prefWidth="176.0" />
+    <ListView fx:id="lv_Computer" layoutX="13.0" layoutY="47.0" onMouseClicked="#mouseClickComputerLV" prefHeight="148.0" prefWidth="176.0" />
+  </children>
+</AnchorPane>
