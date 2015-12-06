@@ -27,6 +27,9 @@ public class Controller implements Initializable {
     private static Logger logger = Logger.getLogger(Controller.class.getName());
     private static final String TXT_TO_REPAIR = "to repair";
     private static final String TXT_OK = "OK";
+    //This attribute is for making my drag n drop totally private
+    public static DataFormat dataFormat =  new DataFormat("mycell");
+
 
     ///"slabe" ladowanie modelu na sztywno. Brak konstr.
     private Model model = Model.getInstance();
@@ -42,8 +45,13 @@ public class Controller implements Initializable {
      */
     Reparation chainOfReparation = model.getChainOfReparation();
 
-    int selectedIdx;
+    int selectedComputerIdx;
     Computer selectedComputer;
+
+    int indexOfSelectedItem;
+    int choosenIndexForComponent;
+    boolean dragAndDropFlag = false;
+    EComponent selectedComponent;
 
     ///FXML variable region - slabe nazwy ale juz mi sie nie chce zmieniac :D
     @FXML
@@ -69,9 +77,9 @@ public class Controller implements Initializable {
          * Ustawianie poczatkowych zmiennych
          */
         if (computers.size() > 0 && computers != null) {
-            selectedIdx = 0;
-            selectedComputer = computers.get(selectedIdx);
-            whichComponentsAreBroken(computers.get(selectedIdx));
+            selectedComputerIdx = 0;
+            selectedComputer = computers.get(selectedComputerIdx);
+            whichComponentsAreBroken(computers.get(selectedComputerIdx));
         }
         /**
          * Ladowanie danych do ListView Computer
@@ -96,31 +104,42 @@ public class Controller implements Initializable {
                     return;
                 }
 
+                indexOfSelectedItem = lv_Order.getSelectionModel().getSelectedIndex();
+                selectedComponent = lv_Order.getSelectionModel().getSelectedItem();
+                logger.info("indexOfSelectedItem: " + indexOfSelectedItem);
+
+
                 Dragboard dragBoard = lv_Order.startDragAndDrop(TransferMode.MOVE);
                 ClipboardContent content = new ClipboardContent();
                 content.putString(lv_Order.getSelectionModel().getSelectedItem().name());
                 logger.info("Wybraniec: " + content);
                 dragBoard.setContent(content);
+                event.consume();
             }
         });
-
         lv_Order.setOnDragOver(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent dragEvent) {
-                dragEvent.acceptTransferModes(TransferMode.MOVE);
+                Dragboard db = dragEvent.getDragboard();
+                if (db.hasString()) {
+                    dragEvent.acceptTransferModes(TransferMode.MOVE);
+                }
+                dragEvent.consume();
             }
         });
-
         lv_Order.setOnDragDropped(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent dragEvent) {
-                String componentName = dragEvent.getDragboard().getString();
-                logger.info("A tu kto?: " + componentName);
-
-                lv_Order.getItems().remove(EComponent.HARD_DISK);
-
-                /*rightList.remove(new Student(player));
-                dragEvent.setDropCompleted(true);*/
+                Dragboard db = dragEvent.getDragboard();
+                boolean success = false;
+                if (db.hasString()) {
+                    dragAndDropFlag = true;
+                    logger.info("indexOfSelectedItem: " + indexOfSelectedItem);
+                    //int thisIdx = lv_Order.getItems().indexOf(db.get);
+                    success = true;
+                }
+                dragEvent.setDropCompleted(success);
+                dragEvent.consume();
             }
         });
     }
@@ -158,18 +177,68 @@ public class Controller implements Initializable {
         lv_Order.setCellFactory(new Callback<ListView<EComponent>, ListCell<EComponent>>() {
             @Override
             public ListCell<EComponent> call(ListView<EComponent> param) {
+                /**
+                 * Wyjasnienie: DaD - Drag and Drop, cell - poszczegolna komorka ListView.
+                 * indexOfSelectedItem - index cell'a ktorego item chcemy przeniesc.
+                 * choosenIndexForComponent - index cell'a gdzie chcemy wsadzic przenoszony item.
+                 *
+                 * DaD slabo dziala dlatego gdy ktos przytrzymuje i unosi cell ustawiam w listenerach DaD
+                 * flage dragAndDropFlag ktora powoduje zasloniecie updateItem (nic sie nie zreloaduje)
+                 * wejscie do setOnMouseEntered i pobranie nowego indexu: choosenIndexForComponent.
+                 * Czyszcze flage. Wywoluje metode ktora przemienia ORDER w lancuchu i od nowa
+                 * wywoluje ta metode juz ze zmieniona kolejnoscia i wyczyszczona flaga.
+                 * bez ustawionej flagi wchodzi i update'uje cala listView od zmienionej
+                 * kolejnoscia listy COMPONENTS.
+                 * Slabo zrobione ale dziala :)
+                 * Na koncu jeszcze aktualizuje "wybor" cell'a na przeniesiony index: choosenIndexForComponent.
+                 */
                 ListCell<EComponent> cell = new ListCell<EComponent>() {
                     @Override
                     protected void updateItem(EComponent item, boolean empty) {
                         super.updateItem(item, empty);
                         if (item != null) {
-                            setText(item.name());
+                            if (dragAndDropFlag) {
+                            } else {
+                                logger.info("W updateItem components: " + components.toString());
+                                setText(item.name());
+                            }
                         }
                     }
                 };
+                cell.setOnMouseEntered(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        if (dragAndDropFlag) {
+                            dragAndDropFlag = false;
+                            choosenIndexForComponent = cell.getIndex();
+                            System.out.println("index: " + choosenIndexForComponent);
+                            setComponentsArrayDragAndDrop();
+                        }
+                    }
+                });
                 return cell;
             }
         });
+        lv_Order.scrollTo(choosenIndexForComponent);
+        //lv_Order.getFocusModel().focus(choosenIndexForComponent);
+        lv_Order.getSelectionModel().select(choosenIndexForComponent);
+    }
+
+    private void setComponentsArrayDragAndDrop() {
+        /**
+         * nie dziala cos dla Procka, bo jest jako pierwszy i pewnie od niego zostaje wywolany lanuch
+         * pozniej zmienic.
+         */
+        chainOfReparation.changeOrderOfItems(indexOfSelectedItem, choosenIndexForComponent);
+        List<Reparation> reparations = new ArrayList<>(Reparation.getOrderOfReparations());
+        List<EComponent> components1 = new ArrayList<>();
+        for (Reparation reparation : reparations) {
+            components1.add(reparation.getComponent());
+        }
+        components = new ArrayList<>(components1);
+        ObservableList<EComponent> data = FXCollections.observableArrayList(components);
+        lv_Order.setItems(data);
+        setListViewComponents(components);
     }
 
     private void setComponentsArray() {
@@ -248,8 +317,14 @@ public class Controller implements Initializable {
     }*/
     //endregion
 
+
+    @FXML protected void mouseReleasedOrderLV() {
+        //indexOfSelectedItem = lv_Order.getItems().;
+        logger.info("indexOfSelectedItem: " + indexOfSelectedItem);
+    }
+
     @FXML protected void mouseClickComputerLV() {
-        selectedIdx = lv_Computer.getSelectionModel().getSelectedIndex();
+        selectedComputerIdx = lv_Computer.getSelectionModel().getSelectedIndex();
         selectedComputer = lv_Computer.getSelectionModel().getSelectedItem();
         whichComponentsAreBroken(selectedComputer);
     }
@@ -265,7 +340,7 @@ public class Controller implements Initializable {
         Computer computer = new Computer();
         whichCheckBoxesAreSelected(computer);
         computers.add(computer);
-        selectedIdx = computers.size() - 1;
+        selectedComputerIdx = computers.size() - 1;
         selectedComputer = computer;
         /**
          * Ustawienie ListView Computer
