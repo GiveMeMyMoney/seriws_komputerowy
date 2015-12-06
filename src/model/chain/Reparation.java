@@ -36,15 +36,15 @@ public abstract class Reparation {
      * @param computer
      */
     public void repair(Computer computer) {
-        if (flagFirstTime) {
+        /*if (flagFirstTime) {
             flagFirstTime = false;
             orderOfReparations.get(iter).repair(computer);
-        }
-        if (computer.checkIfComponentIsBroken(component)) { //orderOfReparations.get(iter++)
-            String repairedComponent = repairComponent(computer);
-            JOptionPane.showMessageDialog(null, repairedComponent + " has been repaired");
-        }
+        }*/
         if (iter != orderOfReparations.size()) {
+            if (computer.checkIfComponentIsBroken(orderOfReparations.get(iter).getComponent())) { //orderOfReparations.get(iter++)
+                String repairedComponent = orderOfReparations.get(iter).repairComponent(computer);
+                JOptionPane.showMessageDialog(null, repairedComponent + " has been repaired");
+            }
             orderOfReparations.get(iter++).repair(computer);
         } else {
             iter = 0;
