@@ -22,6 +22,7 @@ public abstract class Reparation {
      */
     protected static List<Reparation> orderOfReparations = new ArrayList<>();
     protected static int iter = 0;    //taka sama w calym obrebie lancucha
+    protected static boolean flagFirstTime = true;
 
     public void setNextReparation(Reparation reparation) {
         orderOfReparations.add(reparation);
@@ -35,14 +36,19 @@ public abstract class Reparation {
      * @param computer
      */
     public void repair(Computer computer) {
+        if (flagFirstTime) {
+            flagFirstTime = false;
+            orderOfReparations.get(iter).repair(computer);
+        }
         if (computer.checkIfComponentIsBroken(component)) { //orderOfReparations.get(iter++)
             String repairedComponent = repairComponent(computer);
             JOptionPane.showMessageDialog(null, repairedComponent + " has been repaired");
         }
         if (iter != orderOfReparations.size()) {
-             orderOfReparations.get(iter++).repair(computer);
+            orderOfReparations.get(iter++).repair(computer);
         } else {
             iter = 0;
+            //flagFirstTime = true; //wymyslic co zrobic z ta flaga by dawac ja na true.
         }
     }
 

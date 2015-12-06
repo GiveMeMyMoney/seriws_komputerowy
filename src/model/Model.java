@@ -69,6 +69,7 @@ public class Model implements IModel {
         //2
         computer = new Computer();
         components = new ArrayList<>();
+        components.add(EComponent.PROCESSOR);
         components.add(EComponent.MEMORY);
         components.add(EComponent.HARD_DISK);
         computer.setBrokenComponents(components);
